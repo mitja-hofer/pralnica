@@ -36,6 +36,7 @@ static uint32_t run_inference_every_ms = 200;
 static rtos::Thread inference_thread(osPriorityLow);
 static float buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE] = { 0 };
 static float inference_buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE];
+static bool serial_enabled = false;
 
 /* Forward declaration */
 void run_inference_background();
@@ -54,9 +55,11 @@ BLEDevice central;
 void setup()
 {
     // put your setup code here, to run once:
-    Serial.begin(115200);
-    while (!Serial);
-    Serial.println("Edge Impulse Inferencing Demo");
+    if (serial_enabled) {
+        Serial.begin(115200);
+        while (!Serial);
+        Serial.println("Edge Impulse Inferencing Demo");
+    }
 
     if (!IMU.begin()) {
         ei_printf("Failed to initialize IMU!\r\n");
@@ -76,7 +79,7 @@ void setup()
 
     // begin initialization
     if (!BLE.begin()) {
-      Serial.println("starting BLE failed!");
+      ei_printf("starting BLE failed!");
       while (1);
     }
 
@@ -98,13 +101,13 @@ void setup()
     // start advertising
     BLE.advertise();
 
-    Serial.println("Bluetooth® device active, waiting for connections...");
+    ei_printf("Bluetooth® device active, waiting for connections...");
 
     while(1) {
       central = BLE.central();
       if (central) {
-        Serial.print("Connected to central:");
-        Serial.println(central.address());
+        ei_printf("Connected to central:");
+        ei_printf(central.address());
         break;
       }
     }
@@ -124,7 +127,7 @@ void ei_printf(const char *format, ...) {
    va_end(args);
 
    if (r > 0) {
-       Serial.write(print_buf);
+       if (serial_enabled) Serial.write(print_buf);
    }
 }
 
