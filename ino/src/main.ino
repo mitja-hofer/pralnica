@@ -194,7 +194,7 @@ void run_inference_background()
         }
         ei_printf("]\n");
         if (central.connected()) {
-          pralnicaState.writeValue(prediction);
+          pralnicaState.writeValue(prediction[0]);
         }
         delay(run_inference_every_ms);
     }
