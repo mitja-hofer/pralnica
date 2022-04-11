@@ -107,7 +107,7 @@ void setup()
       central = BLE.central();
       if (central) {
         ei_printf("Connected to central:");
-        ei_printf(central.address());
+        ei_printf("%s", central.address());
         break;
       }
     }
